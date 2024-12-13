@@ -5,6 +5,7 @@
 // Defines how many zeroes we need a the front of hash for
 // proof of work
 #define REQUIREDZEROES 1
+#define HASH_STRING_LENGTH 65
 
 // Defines macros for rotations
 #define ROTLEFT(a, b) (((a) << (b)) | ((a) >> (32 - (b))))
@@ -62,7 +63,7 @@ void sha256_final(SHA256_CTX *ctx, uint8_t hash[]);
 
 // High-level function to compute the SHA-256 hash of a string and modifies second arg
 // so that it contains 32 8-bit values
-void sha256(const char *input, uint8_t hash[]);
+void sha256(const char* input, uint8_t hash[]);
 
 // compares two sets of hashes and returns true or false
 bool compareHashes(uint8_t hash1[], uint8_t hash2[]);

@@ -1,11 +1,14 @@
 #include <stdint.h>
 
+#define MAX_USERNAME_LENGTH 20
+
 /* Contains what each block will have */
 typedef struct Block {
     int index;
     int nonce;
     char timestamp[64];
     char data[256];
+    char username[MAX_USERNAME_LENGTH+1];
     u_int8_t previousHash[32];
     u_int8_t hash[32];
 } Block;
@@ -36,10 +39,12 @@ int isValidBlock(Block lastBlock, Block newBlock);
 * the string data (voting) and constructs a block based on that. 
 * Then, it does a proof of work and returns the newest block
 */
-Block createNewBlock(Block lastBlock, const char *data);
+Block createNewBlock(Block lastBlock, const char *data, const char *username);
 
 /* Takes a blockchain pointer and prints out each block */
 void printBlockchain(Blockchain *bc);
+
+void writeToWebsite(Blockchain *bc);
 
 /* Frees allocated memory for blockchain */
 void freeBlockchain(Blockchain *bc);

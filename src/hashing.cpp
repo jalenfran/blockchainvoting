@@ -135,7 +135,7 @@ bool meetsProofOfWork(uint8_t hash[]){
 
 void makeHashString(uint8_t hash[], char* dest){
     for (int i = 0; i < 32; i++){
-        sprintf(dest + i * 2, "%02x", hash[i]);
+        snprintf(dest + i * 2, 65, "%02x", hash[i]);
     }
     dest[64] = '\0';
 }
