@@ -1,4 +1,4 @@
-#include "../include/utilities.h"
+#include "../../include/logic/utilities.h"
 
 void getFormattedTime(char * dest){
     // Create a time_t object to store the current time

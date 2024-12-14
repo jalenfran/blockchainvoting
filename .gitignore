@@ -10,6 +10,7 @@
 
 # Ignore build directories
 /build/
+/bin
 */build/
 
 # Ignore IDE specific files

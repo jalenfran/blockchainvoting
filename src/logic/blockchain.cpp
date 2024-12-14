@@ -1,13 +1,58 @@
-#include "../include/hashing.h"
-#include "../include/utilities.h"
-#include "../include/VotingCounter.h"
+#include "../../include/logic/hashing.h"
+#include "../../include/logic/utilities.h"
+#include "../../include/logic/VotingCounter.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <string>
 #include <fstream>
 #include <iostream>
+#include <thread>
+#include <atomic>
+
+void mineBlock(Block *block){
+    // does proof of work
+    char hashBuffer[256];
+    char previousHashString[HASH_STRING_LENGTH];
+    makeHashString(block->previousHash, previousHashString);
+    std::string initialString = std::to_string(block->index) + block->username + previousHashString + block->timestamp + block->data;
+    const int numThreads = std::thread::hardware_concurrency(); // gets number of threads
+    const int rangePerThread = (INT_MAX) / numThreads; 
+    std::atomic<bool> found(false); 
+    std::vector<std::thread> threads;
+
+    for (int i = 0; i < numThreads; ++i) {
+        int threadStart = i * rangePerThread;
+        int threadEnd = threadStart + rangePerThread;
+
+        // Start a new thread for each range
+        threads.push_back(std::thread([&, threadStart, threadEnd] {
+            if (!found.load()) { // Check if a solution hasn't already been found
+                mineBlockRange(threadStart, threadEnd, initialString, block->hash, &(block->nonce), found);
+            }
+        }));
+    }
+
+    // Wait for all threads to finish
+    for (auto& t : threads) {
+        t.join();
+    }
+}
+
+void mineBlockRange(int startNonce, int endNonce, std::string initialString, uint8_t hash[], int *nonce, std::atomic<bool>& found){
+    for (int i = startNonce; i < endNonce; i++){
+        if (found.load()) return; // makes sure we stop if a thread has found a hash
+        std::string testString = initialString + std::to_string(i); // gathers string with nonce
+        uint8_t testHash[32];
+        sha256(testString.c_str(), testHash);
+        if (meetsProofOfWork(testHash)){
+            *nonce = i;
+            copyHashes(testHash, hash);
+            found.store(true); 
+            return;
+        }
+    }
+}
 
 Block createGenesisBlock()
 {
@@ -121,7 +166,7 @@ void printBlockchain(Blockchain *bc)
 }
 
 void writeToWebsite(Blockchain *bc){
-    std::ofstream file("./website/index.html");
+    std::ofstream file("/Users/jalenfrancis/blockchainvoting/website/index.html");
     if (!file.is_open()) {
         std::cerr << "Error opening HTML file.\n";
         return;

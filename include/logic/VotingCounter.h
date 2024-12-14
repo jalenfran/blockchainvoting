@@ -1,11 +1,11 @@
-#include "../include/blockchain.h"
+#include "blockchain.h"
 #include <unordered_set>
 #include <string>
 
 class VotingCounter {
 public:
     // adds a vote to the blockchain
-    static void addVote(Blockchain *bc, const char *voteData, const char *username);
+    static void addVote(Blockchain *bc, std::string data, std::string username);
 
     // method checks whether a user has already voted
     static bool checkIfVoted(std::string username);

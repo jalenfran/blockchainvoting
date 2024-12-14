@@ -1,6 +1,6 @@
-#include "../include/UserManager.h"
-#include "../include/hashing.h"
-#include "../include/blockchain.h"
+#include "../../include/logic/UserManager.h"
+#include "../../include/logic/hashing.h"
+#include "../../include/logic/blockchain.h"
 #include <iostream>
 #include <fstream>
 

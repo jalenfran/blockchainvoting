@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <string>
 
 #define MAX_USERNAME_LENGTH 20
 
@@ -7,7 +8,7 @@ typedef struct Block {
     int index;
     int nonce;
     char timestamp[64];
-    char data[256];
+    char data[21];
     char username[MAX_USERNAME_LENGTH+1];
     u_int8_t previousHash[32];
     u_int8_t hash[32];
@@ -18,6 +19,13 @@ typedef struct Blockchain{
     Block *blocks;
     int length;
 } Blockchain;
+
+/* Method for mining a block */
+void mineBlock(Block *block);
+
+/* Method to mine a certain block range. returns true iff we find a valid nonce within [startNonce, endNonce)*/
+/* only modifies hash and nonce variables iff we find a valid nonce */
+void mineBlockRange(int startNonce, int endNonce, std::string initialString, uint8_t hash[], int *nonce, std::atomic<bool>& found);
 
 /* Function to create first block */
 Block createGenesisBlock();
@@ -48,3 +56,4 @@ void writeToWebsite(Blockchain *bc);
 
 /* Frees allocated memory for blockchain */
 void freeBlockchain(Blockchain *bc);
+

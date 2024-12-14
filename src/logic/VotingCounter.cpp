@@ -1,10 +1,10 @@
-#include "../include/VotingCounter.h"
+#include "../../include/logic/VotingCounter.h"
 
 std::unordered_set<std::string> VotingCounter::votedSet;
 
-void VotingCounter::addVote(Blockchain *bc, const char *voteData, const char *username) {
+void VotingCounter::addVote(Blockchain *bc, std::string data, std::string username) {
     Block lastBlock = bc->blocks[bc->length - 1];
-    Block newBlock = createNewBlock(lastBlock, voteData, username);
+    Block newBlock = createNewBlock(lastBlock, data.c_str(), username.c_str());
     if (isValidBlock(lastBlock, newBlock)) {
         addBlock(bc, newBlock);
         VotingCounter::addToVoteSet(newBlock.username);

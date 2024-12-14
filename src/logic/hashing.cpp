@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "../include/hashing.h"
+#include "../../include/logic/hashing.h"
 
 void sha256_init(SHA256_CTX *ctx) {
     ctx->datalen = 0;

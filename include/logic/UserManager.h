@@ -1,7 +1,7 @@
 #include <unordered_map>
 #include <string>
 
-#define DATABASE_FILE "./data/users.txt" 
+#define DATABASE_FILE "/Users/jalenfrancis/blockchainvoting/data/users.txt" 
 
 class UserManager {
 public:
