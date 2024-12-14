@@ -1,21 +1,40 @@
 #include <unordered_map>
 #include <string>
 
-#define DATABASE_FILE "/Users/jalenfrancis/blockchainvoting/data/users.txt" 
-
 class UserManager {
 public:
-    // Load the user database from a file
-    static void loadUserDatabase();
-
-    // Save the user database to a file
+    /**
+     * Load the user database from a file
+     * @pre fileName corresponds to a proper directory relative to the executabel
+     * @post {userDatabase} will be updated to match the data in the file
+     * @post {databaseFile} == fileName
+     */
+    static void loadUserDatabase(std::string fileName);
+    /**
+     * Save the user database to {databaseFile}.
+     * @post all elements in {userDatabase} will be output into a file
+     * at {databaseFile} with the format of pair.first pair.second separated
+     * by new lines.
+     */
     static void saveUserDatabase();
 
-    // Register a new user
+    /**
+     * Registers a new user if the user is not in {userDatabase}.
+     * @post returns true iff the username is not in {userDatabase} as a key
+     * @post if we return true then a key value pair will be added into
+     * {userDatabase} where the specified password is salted and then hashed
+     */
     static bool registerUser(const std::string& username, const std::string& password);
 
-    // Authenticate a user
+    /**
+     * Returns true iff the username and password combo is valid
+     * @post returns true iff (username is in {userDatabase})
+     * AND (the password salted and hashed matches the value found
+     * at username in {userDatabase})
+     */
     static bool authenticateUser(const std::string& username, const std::string& password);
 private:
     static std::unordered_map<std::string, std::string> userDatabase;
+    static std::string salt;
+    static std::string databaseFile;
 };

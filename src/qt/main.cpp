@@ -5,8 +5,7 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
-
-void termination(Blockchain *bc);
+#include <QDir>
 
 int main(int argc, char *argv[])
 {
@@ -22,6 +21,22 @@ int main(int argc, char *argv[])
         }
     }
 
+    QString appDir = QCoreApplication::applicationDirPath();
+
+    QDir dir(appDir);
+
+    // Loop to navigate up the directory hierarchy until we find the 'data' folder
+    while (!dir.exists("data")) {
+        if (!dir.cdUp()) {
+            // If we can't navigate up any further (i.e., we've reached the root), stop searching
+            qDebug() << "Reached the root directory without finding 'data' folder.";
+        }
+    }
+
+    // Now that we're at the correct directory, construct the path to 'data/users.txt'
+    QString dataFilePath = dir.filePath("data/users.txt");
+    QString websiteFilePath = dir.filePath("website/index.html");
+
     // displays loading display
     LoadingDialog *loadingDialog = new LoadingDialog();
     loadingDialog->show();
@@ -29,21 +44,14 @@ int main(int argc, char *argv[])
     a.processEvents(); // ensures dialog shows
 
     // loads database
-    UserManager::loadUserDatabase();
+    UserManager::loadUserDatabase(dataFilePath.toStdString());
     Blockchain bc;
     createBlockchain(&bc);
 
     loadingDialog->accept();
 
-    MainWindow w(&bc);
-
-    QObject::connect(&w, &QWidget::destroyed, &a, &QApplication::quit);
+    MainWindow w(&bc, websiteFilePath);
     
     w.show();
     return a.exec();
-}
-
-void termination(Blockchain *bc){
-    writeToWebsite(bc);
-    QApplication::quit();
 }

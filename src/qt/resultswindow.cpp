@@ -9,12 +9,12 @@
 #include <string>
 #include <vector>
 
-ResultsWindow::ResultsWindow(Blockchain *bc, QWidget *parent)
+ResultsWindow::ResultsWindow(Blockchain *bcPtr, QWidget *parent)
     : QDialog(parent), ui(new Ui::ResultsWindow)
 {
     ui->setupUi(this);
 
-    std::vector<std::pair<std::string, int>> results = VotingCounter::tallyAndSortVotes(bc);
+    std::vector<std::pair<std::string, int>> results = VotingCounter::tallyAndSortVotes(bcPtr);
 
     // Create a QVBoxLayout to arrange the group boxes vertically
     QVBoxLayout *layout = new QVBoxLayout();
@@ -56,8 +56,8 @@ ResultsWindow::ResultsWindow(Blockchain *bc, QWidget *parent)
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(scrollArea);
 
-    // Make sure the layout is set correctly on the main widget
-    setLayout(mainLayout);  // Set the layout of the main window to the scrollable layout
+    setLayout(mainLayout);
+    setWindowTitle("Results Viewer");
 
 }
 
@@ -68,6 +68,10 @@ ResultsWindow::~ResultsWindow()
 
 void ResultsWindow::on_btnBack_clicked()
 {
-    emit backPressed();
     this->close();
+}
+
+void ResultsWindow::closeEvent(QCloseEvent *event)
+{
+    emit backPressed(); // just goes back
 }

@@ -14,11 +14,15 @@ class Login : public QDialog
     Q_OBJECT
 
 public:
-    explicit Login(Blockchain *bcIn, QWidget *parent = nullptr);
+    explicit Login(Blockchain *bcPtrIn, QWidget *parent = nullptr);
     ~Login();
 
 signals:
     void backPressed();
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
 
@@ -30,7 +34,7 @@ private slots:
 
 private:
     Ui::Login *ui;
-    Blockchain *bc;
+    Blockchain *bcPtr;
 };
 
 #endif // LOGINWINDOW_H

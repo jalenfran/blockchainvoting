@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Creating genesis block...</string>
+    <string>Mining genesis block...</string>
    </property>
   </widget>
  </widget>

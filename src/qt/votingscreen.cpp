@@ -2,13 +2,14 @@
 #include "../../include/qt/ui_votingscreen.h"
 #include <QRegularExpressionValidator>
 #include <QRegularExpression>
-#include <QTimer>
+#include <QKeyEvent>
+#include <QThread>
 
-VotingScreen::VotingScreen(Blockchain *bcIn, const QString &usernameIn, QWidget *parent)
+VotingScreen::VotingScreen(Blockchain *bcPtrIn, const QString &usernameIn, QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::VotingScreen)
 {
-    bc = bcIn;
+    bcPtr = bcPtrIn;
     username = usernameIn;
     ui->setupUi(this);
 
@@ -19,7 +20,8 @@ VotingScreen::VotingScreen(Blockchain *bcIn, const QString &usernameIn, QWidget 
 
     // Apply the validator to the username QLineEdit
     ui->lineCandidate->setValidator(validator);
-    isVoteButton = true;
+    buttonState = 0;
+    setWindowTitle("Voting Screen");
 }
 
 VotingScreen::~VotingScreen()
@@ -29,20 +31,43 @@ VotingScreen::~VotingScreen()
 
 void VotingScreen::on_btnVote_clicked()
 {
-    if (isVoteButton){
-        ui->labelStatus->setText("Working on block...");
-        ui->btnVote->setText("Waiting");
-        QCoreApplication::processEvents(); // forces application to update
+    if (buttonState == 0){
+        std::string vote = ui->lineCandidate->text().toStdString();
+        if (vote == ""){
+            ui->labelStatus->setText("Enter valid candidate");
+        } else {
+            buttonState = 1;
+            ui->labelStatus->setText("Mining block...");
+            ui->btnVote->setText("Waiting");
+            QCoreApplication::processEvents();
 
-        // Use a QTimer to ensure the app updates
-        QTimer::singleShot(0, this, [this]() {
-            VotingCounter::addVote(bc, ui->lineCandidate->text().toStdString(), username.toStdString());
+            QThread::msleep(10);  // 10 ms delay
+            QCoreApplication::processEvents();//
+
+            VotingCounter::addVote(bcPtr, vote, username.toStdString());
             ui->labelStatus->setText("Vote Counted");
+            ui->lineCandidate->setReadOnly(true);
             ui->btnVote->setText("Back");
-            isVoteButton = false;
-        });
-    } else {
+            buttonState = 2;
+        }
+    } else if (buttonState == 2){
         emit backPressed();
         this->close();
+    }
+}
+
+void VotingScreen::closeEvent(QCloseEvent *event)
+{
+    emit backPressed(); // just goes back
+}
+
+// Override keyPressEvent to trigger the submit button when vote/back is pressed
+void VotingScreen::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter && buttonState != 1) {
+        // If Enter key is pressed, trigger the submit button
+        on_btnVote_clicked();
+    } else {
+        QDialog::keyPressEvent(event);  // handle other key presses
     }
 }

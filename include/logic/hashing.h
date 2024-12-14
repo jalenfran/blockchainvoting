@@ -4,7 +4,7 @@
 
 // Defines how many zeroes we need a the front of hash for
 // proof of work
-#define REQUIREDZEROES 3
+#define REQUIREDZEROES 2
 #define HASH_STRING_LENGTH 65
 
 // Defines macros for rotations
@@ -65,17 +65,40 @@ void sha256_final(SHA256_CTX *ctx, uint8_t hash[]);
 // so that it contains 32 8-bit values
 void sha256(const char* input, uint8_t hash[]);
 
-// compares two sets of hashes and returns true or false
+/**
+ * compares two sets of hashes and returns true or false
+ * @pre hash1 and hash2 both have an allocation of at least 32
+ * @post returns true iff the first 32 elements of hash1 and hash2 are equal
+ */
 bool compareHashes(uint8_t hash1[], uint8_t hash2[]);
 
 // determines whethere a hash meets the proof of work standard defined in the header
+/**
+ * determines whethere a hash meets the proof of work standard defined in the header
+ * @pre hash has at least an allocation for 32 elements
+ * @post returns true iff the first {REQUIREDZEROES} elements of hash == 0
+ */
 bool meetsProofOfWork(uint8_t hash[]);
 
-// based on the hash it creates a string this requires that dest has an allocation for 65 chars
+/**
+ * based on the hash it creates a string this requires that dest has an allocation for 65 chars
+ * @pre hash at least 32 elements
+ * @pre dest has an allocation for at least 65 elements
+ * @post dest will correspond with the hexadecimal output of hash and end will null terminating
+ */
 void makeHashString(uint8_t hash[], char* dest);
 
-// initializes all values in the hash array to 0
+/**
+ * initializes all values in the hash array to 0
+ * @pre hash at least 32 elements
+ * @post the first 32 elements of hash will be equal to 0
+ */
 void initializeHash(uint8_t hash[]);
 
-// copies all the values in hash1 into hash2
+/**
+ * copies all the values in hash1 into hash2
+ * @pre hash1 has at least 32 elements
+ * @pre hash2 has at least 32 elements
+ * @post the first 32 elemetns of hash2 will equal the first 32 elements of hash1
+ */
 void copyHashes(uint8_t hash1[], uint8_t hash2[]);

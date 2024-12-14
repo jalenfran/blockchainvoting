@@ -6,6 +6,7 @@ LoadingDialog::LoadingDialog(QWidget *parent)
     , ui(new Ui::LoadingDialog)
 {
     ui->setupUi(this);
+    setWindowTitle("Loading Screen");
 }
 
 LoadingDialog::~LoadingDialog()

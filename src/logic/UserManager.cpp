@@ -6,8 +6,13 @@
 
 std::unordered_map<std::string, std::string> UserManager::userDatabase;
 
-void UserManager::loadUserDatabase() {
-    std::ifstream file(DATABASE_FILE);
+std::string UserManager::salt = "*]2>;YVT+S^z!;<=";
+
+std::string UserManager::databaseFile;
+
+void UserManager::loadUserDatabase(std::string fileName) {
+    databaseFile = fileName;
+    std::ifstream file(databaseFile);
     if (!file.is_open()) {
         std::cerr << "Error opening database file.\n";
         return;
@@ -22,7 +27,7 @@ void UserManager::loadUserDatabase() {
 }
 
 void UserManager::saveUserDatabase() {
-    std::ofstream file(DATABASE_FILE, std::ios::trunc);
+    std::ofstream file(databaseFile, std::ios::trunc);
     if (!file.is_open()) {
         std::cerr << "Error opening database file.\n";
         return;
@@ -39,11 +44,14 @@ bool UserManager::registerUser(const std::string& username, const std::string& p
     if (userDatabase.find(username) != userDatabase.end()) {
         std::cerr << "Username already exists.\n";
         return false;
-    } 
+    }
+
+    // adds salt to password
+    std::string saltedPassword = password +  UserManager::salt;
 
     // computes the hash
     u_int8_t hashOutput[32];
-    sha256(password.c_str(), hashOutput);
+    sha256(saltedPassword.c_str(), hashOutput);
     char hashedPassword[HASH_STRING_LENGTH];
     // finds the string
     makeHashString(hashOutput, hashedPassword);
@@ -61,8 +69,11 @@ bool UserManager::authenticateUser(const std::string& username, const std::strin
         return false;
     }
 
+    // adds salt to password
+    std::string saltedPassword = password + UserManager::salt;
+
     u_int8_t hashOutput[32];
-    sha256(password.c_str(), hashOutput);
+    sha256(saltedPassword.c_str(), hashOutput);
     char hashedPassword[HASH_STRING_LENGTH];
     makeHashString(hashOutput, hashedPassword);
 

@@ -16,14 +16,14 @@ class ResultsWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit ResultsWindow(Blockchain *bc, QWidget *parent = nullptr);
+    explicit ResultsWindow(Blockchain *bcPtr, QWidget *parent = nullptr);
     ~ResultsWindow();
-
-    // Method to add a new result (name and integer value)
-    void addResult(const QString &name, int value);
 
 signals:
     void backPressed();
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private slots:
     void on_btnBack_clicked();

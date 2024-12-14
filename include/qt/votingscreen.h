@@ -13,11 +13,15 @@ class VotingScreen : public QDialog
     Q_OBJECT
 
 public:
-    explicit VotingScreen(Blockchain *bc, const QString &username, QWidget *parent = nullptr);
+    explicit VotingScreen(Blockchain *bcPtrIn, const QString &username, QWidget *parent = nullptr);
     ~VotingScreen();
 
 signals:
     void backPressed();
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void on_btnVote_clicked();
@@ -25,8 +29,9 @@ private slots:
 private:
     Ui::VotingScreen *ui;
     QString username;
-    Blockchain *bc;
-    bool isVoteButton;
+    Blockchain *bcPtr;
+    // 0 correlates with vote, 1  -waiting, 2 - back
+    int buttonState;
 };
 
 #endif // VOTINGSCREEN_H

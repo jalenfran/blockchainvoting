@@ -10,12 +10,12 @@
 #include <thread>
 #include <atomic>
 
-void mineBlock(Block *block){
+void mineBlock(Block *blockPtr){
     // does proof of work
     char hashBuffer[256];
     char previousHashString[HASH_STRING_LENGTH];
-    makeHashString(block->previousHash, previousHashString);
-    std::string initialString = std::to_string(block->index) + block->username + previousHashString + block->timestamp + block->data;
+    makeHashString(blockPtr->previousHash, previousHashString);
+    std::string initialString = std::to_string(blockPtr->index) + blockPtr->username + previousHashString + blockPtr->timestamp + blockPtr->data;
     const int numThreads = std::thread::hardware_concurrency(); // gets number of threads
     const int rangePerThread = (INT_MAX) / numThreads; 
     std::atomic<bool> found(false); 
@@ -28,7 +28,7 @@ void mineBlock(Block *block){
         // Start a new thread for each range
         threads.push_back(std::thread([&, threadStart, threadEnd] {
             if (!found.load()) { // Check if a solution hasn't already been found
-                mineBlockRange(threadStart, threadEnd, initialString, block->hash, &(block->nonce), found);
+                mineBlockRange(threadStart, threadEnd, initialString, blockPtr->hash, &(blockPtr->nonce), found);
             }
         }));
     }
@@ -66,16 +66,7 @@ Block createGenesisBlock()
     strcpy(genesisBlock.username, "None");
     genesisBlock.nonce = 0;
 
-    // does proof of work
-    char hashBuffer[256];
-    char previousHashString[HASH_STRING_LENGTH];
-    makeHashString(genesisBlock.previousHash, previousHashString);
-    do
-    {
-        genesisBlock.nonce++;
-        snprintf(hashBuffer, sizeof(hashBuffer), "%d%s%s%s%s%d", genesisBlock.index, genesisBlock.username, previousHashString, genesisBlock.timestamp, genesisBlock.data, genesisBlock.nonce);
-        sha256(hashBuffer, genesisBlock.hash);
-    } while (!meetsProofOfWork(genesisBlock.hash));
+    mineBlock(&genesisBlock);
     return genesisBlock;
 }
 
@@ -86,39 +77,39 @@ void addBlock(Blockchain *bc, Block newBlock)
     bc->length++;
 }
 
-void createBlockchain(Blockchain *bc)
+void createBlockchain(Blockchain *bcPtr)
 {
-    bc->blocks = NULL;
-    bc->length = 0;
+    bcPtr->blocks = NULL;
+    bcPtr->length = 0;
     Block genesisBlock = createGenesisBlock();
-    addBlock(bc, genesisBlock);
+    addBlock(bcPtr, genesisBlock);
 }
 
-int isValidBlock(Block lastBlock, Block newBlock)
+bool isValidBlock(Block *lastBlockPtr, Block *newBlockPtr)
 {
-    if (lastBlock.index + 1 != newBlock.index)
+    if (lastBlockPtr->index + 1 != newBlockPtr->index)
     {
-        return 0;
+        return false;
     }
-    if (!compareHashes(lastBlock.hash, newBlock.previousHash))
+    if (!compareHashes(lastBlockPtr->hash, newBlockPtr->previousHash))
     {
-        return 0;
+        return false;
     }
     char hashBuffer[256];
     char previousHashString[HASH_STRING_LENGTH];
-    makeHashString(newBlock.previousHash, previousHashString);
-    snprintf(hashBuffer, sizeof(hashBuffer), "%d%s%s%s%s%d", newBlock.index, newBlock.username, previousHashString, newBlock.timestamp, newBlock.data, newBlock.nonce);
+    makeHashString(newBlockPtr->previousHash, previousHashString);
+    snprintf(hashBuffer, sizeof(hashBuffer), "%d%s%s%s%s%d", newBlockPtr->index, newBlockPtr->username, previousHashString, newBlockPtr->timestamp, newBlockPtr->data, newBlockPtr->nonce);
     u_int8_t hashOutput[32];
     sha256(hashBuffer, hashOutput);
-    if (!compareHashes(hashOutput, newBlock.hash))
+    if (!compareHashes(hashOutput, newBlockPtr->hash))
     {
-        return 0;
+        return false;
     }
     // check if the user has already voted
-    if (VotingCounter::checkIfVoted((std::string) newBlock.username)){
-        return 0;
+    if (VotingCounter::checkIfVoted((std::string) newBlockPtr->username)){
+        return false;
     }
-    return 1;
+    return true;
 }
 
 Block createNewBlock(Block lastBlock, const char *data, const char *username)
@@ -134,24 +125,16 @@ Block createNewBlock(Block lastBlock, const char *data, const char *username)
     strcpy(newBlock.username, username);
     newBlock.nonce = 0;
 
-    char hashBuffer[256];
-    char previousHashString[HASH_STRING_LENGTH];
-    makeHashString(newBlock.previousHash, previousHashString);
-    do
-    {
-        newBlock.nonce++;
-        snprintf(hashBuffer, sizeof(hashBuffer), "%d%s%s%s%s%d", newBlock.index, newBlock.username,previousHashString, newBlock.timestamp, newBlock.data, newBlock.nonce);
-        sha256(hashBuffer, (uint8_t *)newBlock.hash);
-    } while (!meetsProofOfWork(newBlock.hash));
+    mineBlock(&newBlock);
     return newBlock;
 }
 
-void printBlockchain(Blockchain *bc)
+void printBlockchain(Blockchain *bcPtr)
 {
     char hashString[HASH_STRING_LENGTH];
-    for (int i = 0; i < bc->length; i++)
+    for (int i = 0; i < bcPtr->length; i++)
     {
-        Block block = bc->blocks[i];
+        Block block = bcPtr->blocks[i];
         printf("Block %d:\n", block.index);
         printf("  Nonce: %d\n", block.nonce);
         printf("  Timestamp: %s\n", block.timestamp);
@@ -165,38 +148,38 @@ void printBlockchain(Blockchain *bc)
     }
 }
 
-void writeToWebsite(Blockchain *bc){
-    std::ofstream file("/Users/jalenfrancis/blockchainvoting/website/index.html");
+void writeToWebsite(Blockchain *bcPtr, std::string fileName){
+    std::ofstream file(fileName);
     if (!file.is_open()) {
         std::cerr << "Error opening HTML file.\n";
         return;
     }
     // Puts out regular HTML layout stuff
-    file << "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
-    file << "<title>Blockchain Viewer</title><link rel=\"stylesheet\" href=\"styles.css\"></head>";
-    file << "<body><div class=\"blockchain-container\"><div class=\"blockchain\" id=\"blockchain\">";
+    file << "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" << std::endl;
+    file << "<title>Blockchain Viewer</title><link rel=\"stylesheet\" href=\"styles.css\"></head>" << std::endl;
+    file << "<body><div class=\"blockchain-container\"><div class=\"blockchain\" id=\"blockchain\">" << std::endl;
     char hashString[HASH_STRING_LENGTH];
-    for (int i = 0; i < bc->length; i++)
+    for (int i = 0; i < bcPtr->length; i++)
     {
-        file << "<div class=\"block\">";
-        Block block = bc->blocks[i];
-        file << "<h2>Block " << block.index << "</h2>";
-        file << "<p><strong>Nonce:</strong> " << block.nonce << "</p>";
-        file << "<p><strong>Timestamp:</strong> " << block.timestamp << "</p>";
-        file << "<p><strong>Username:</strong> " << block.username << "</p>";
-        file << "<p><strong>Timestamp:</strong> " << block.data << "</p>";
+        file << "<div class=\"block\">" << std::endl;
+        Block block = bcPtr->blocks[i];
+        file << "<h2>Block " << block.index << "</h2>" << std::endl;
+        file << "<p><strong>Nonce:</strong> " << block.nonce << "</p>" << std::endl;
+        file << "<p><strong>Timestamp:</strong> " << block.timestamp << "</p>" << std::endl;
+        file << "<p><strong>Username:</strong> " << block.username << "</p>" << std::endl;
+        file << "<p><strong>Timestamp:</strong> " << block.data << "</p>" << std::endl;
         makeHashString(block.previousHash, hashString);
-        file << "<p><strong>Previous Hash:</strong> " << hashString << "</p>";
+        file << "<p><strong>Previous Hash:</strong><br> " << hashString << "</p>" << std::endl;
         makeHashString(block.hash, hashString);
-        file << "<p><strong>Hash:</strong> " << hashString << "</p>";
-        file << "</div>";
+        file << "<p><strong>Hash:</strong><br> " << hashString << "</p>" << std::endl;
+        file << "</div>" << std::endl;
     }
     file << "</div></div></body></html>";
 
     file.close();
 }
 
-void freeBlockchain(Blockchain *bc)
+void freeBlockchain(Blockchain *bcPtr)
 {
-    free(bc);
+    free(bcPtr);
 }

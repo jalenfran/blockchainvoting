@@ -8,14 +8,14 @@ qt_standard_project_setup()
 qt_add_executable(votingGUI
     WIN32 MACOSX_BUNDLE
     src/qt/main.cpp
-    src/qt/mainwindow.cpp
-    include/qt/mainwindow.h
-    src/qt/mainwindow.ui
+    # QT files
+    include/qt/mainwindow.h src/qt/mainwindow.cpp src/qt/mainwindow.ui
     include/qt/loginwindow.h src/qt/loginwindow.cpp src/qt/loginwindow.ui
     include/qt/registerwindow.h src/qt/registerwindow.cpp src/qt/registerwindow.ui
     include/qt/resultswindow.h src/qt/resultswindow.cpp src/qt/resultswindow.ui
     include/qt/votingscreen.h src/qt/votingscreen.cpp src/qt/votingscreen.ui
     include/qt/loadingdialog.h src/qt/loadingdialog.cpp src/qt/loadingdialog.ui
+    include/qt/blockchainwindow.h src/qt/blockchainwindow.cpp src/qt/blockchainwindow.ui
 
 
     # non QT files
@@ -23,8 +23,6 @@ qt_add_executable(votingGUI
     src/logic/utilities.cpp src/logic/VotingCounter.cpp include/logic/blockchain.h
     include/logic/hashing.h include/logic/UserManager.h include/logic/utilities.h
     include/logic/VotingCounter.h
-
-
 )
 
 qt_add_translations(

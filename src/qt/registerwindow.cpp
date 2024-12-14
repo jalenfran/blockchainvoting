@@ -3,6 +3,7 @@
 #include "../../include/qt/ui_registerwindow.h"
 #include <QRegularExpressionValidator>
 #include <QRegularExpression>
+#include <QKeyEvent>
 
 RegisterWindow::RegisterWindow(QWidget *parent)
     : QDialog(parent)
@@ -19,6 +20,7 @@ RegisterWindow::RegisterWindow(QWidget *parent)
 
     // Apply the validator to the username QLineEdit
     ui->lineUsername->setValidator(validator);
+    setWindowTitle("Registration Window");
 }
 
 RegisterWindow::~RegisterWindow()
@@ -28,8 +30,7 @@ RegisterWindow::~RegisterWindow()
 
 void RegisterWindow::on_btnBack_clicked()
 {
-    emit backPressed();
-    this->reject();
+    this->close();
 }
 
 
@@ -46,9 +47,29 @@ void RegisterWindow::on_passwordBox_checkStateChanged(const Qt::CheckState &arg1
 
 void RegisterWindow::on_btnSubmit_clicked()
 {
-    if (UserManager::registerUser(ui->lineUsername->text().toStdString(), ui->linePassword->text().toStdString())){
+    std::string username = ui->lineUsername->text().toStdString();
+    std::string password = ui->linePassword->text().toStdString();
+    if (username == "" || password == ""){
+        ui->labelResponse->setText("Enter a valid username/password");
+    } else if (UserManager::registerUser(username, password)){
         ui->labelResponse->setText("You are now registered!");
     } else {
         ui->labelResponse->setText("Username is already taken");
+    }
+}
+
+void RegisterWindow::closeEvent(QCloseEvent *event)
+{
+    emit backPressed(); // just goes back
+}
+
+// Override keyPressEvent to trigger the submit button when Enter is pressed
+void RegisterWindow::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+        // If Enter key is pressed, trigger the submit button
+        on_btnSubmit_clicked();
+    } else {
+        QDialog::keyPressEvent(event);  // handle other key presses
     }
 }

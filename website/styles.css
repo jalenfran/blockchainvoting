@@ -1,46 +1,73 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
+    background-color: #e9ecef;  /* Light grey background for the page */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
 .blockchain-container {
     overflow-x: auto;
     white-space: nowrap;
     padding: 20px;
-    background-color: #f8f8f8;
-    border: 1px solid #ddd;
+    background-color: #ffffff; /* Light background for the container */
+    border-radius: 12px;  /* Rounded corners for the container */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);  /* Soft shadow around the container */
+    width: 100%;
+    max-width: 90%;
 }
 
 .blockchain {
     display: inline-block;
+    padding: 10px;
 }
 
 .block {
     display: inline-block;
     vertical-align: top;
-    width: 800px;
-    margin: 20px; 
-    padding: 15px; 
-    border: 2px solid #333; 
-    border-radius: 8px; 
-    background-color: #fff;
-    box-shadow: 3px 3px 10px rgba(0,0,0,0.1); 
-    transition: transform 0.3s ease; 
-    background-color: green;
+    width: 500px;
+    margin: 15px;
+    padding: 20px;
+    border: none; /* Remove border */
+    border-radius: 10px;
+    background-color: #f4f4f4; /* Light gray background for the blocks */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  /* Subtle shadow around each block */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;  /* Smooth hover effect */
+    cursor: pointer;  /* Change the cursor to a pointer */
+    overflow-wrap: break-word;  /* Ensure text within blocks doesn't overflow */
 }
 
 .block h2 {
-    font-size: 18px;
+    font-size: 20px;
+    color: #333;  /* Dark color for the block title */
     margin-top: 0;
+    font-weight: bold;
 }
 
 .block p {
-    margin: 5px 0;
+    margin: 10px 0;
     font-size: 14px;
-    word-wrap: break-word;
+    color: #555;  /* Slightly lighter color for paragraph text */
+}
+
+.block p strong {
+    color: #007bff;  /* Highlight labels with a blue color */
 }
 
 /* Hover effect to make the blocks stand out slightly when hovered over */
 .block:hover {
-    transform: translateY(-5px); /* Lift the block slightly */
-    box-shadow: 3px 3px 15px rgba(0,0,0,0.2); /* Increase shadow on hover */
+    transform: translateY(-8px);  /* Lift the block more noticeably */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);  /* Increase shadow on hover */
+    background-color: #e9ecef;  /* Slightly change background color on hover */
 }
+
+@media (max-width: 768px) {
+    .block {
+        width: 100%;  /* Make blocks full-width on small screens */
+        margin: 10px 0;  /* Reduce margin on smaller screens */
+    }
+}
+
