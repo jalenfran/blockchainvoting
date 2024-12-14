@@ -1,6 +1,8 @@
 #include <unordered_map>
 #include <string>
 
+#define SALT_SIZE 16
+
 class UserManager {
 public:
     /**
@@ -33,8 +35,14 @@ public:
      * at username in {userDatabase})
      */
     static bool authenticateUser(const std::string& username, const std::string& password);
+
+    /**
+     * Generates a random string of size {SALT_SIZE}
+     * @post string returned will be random and of size {SALT_SIZE}
+     */
+    static std::string generateSalt();
 private:
-    static std::unordered_map<std::string, std::string> userDatabase;
-    static std::string salt;
+    // Stores username -> (salt, hashedPassword)
+    static std::unordered_map<std::string, std::pair<std::string, std::string>> userDatabase;
     static std::string databaseFile;
 };
