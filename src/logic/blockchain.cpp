@@ -99,7 +99,7 @@ bool isValidBlock(Block *lastBlockPtr, Block *newBlockPtr)
     char previousHashString[HASH_STRING_LENGTH];
     makeHashString(newBlockPtr->previousHash, previousHashString);
     snprintf(hashBuffer, sizeof(hashBuffer), "%d%s%s%s%s%d", newBlockPtr->index, newBlockPtr->username, previousHashString, newBlockPtr->timestamp, newBlockPtr->data, newBlockPtr->nonce);
-    u_int8_t hashOutput[32];
+    uint8_t hashOutput[32];
     sha256(hashBuffer, hashOutput);
     if (!compareHashes(hashOutput, newBlockPtr->hash))
     {

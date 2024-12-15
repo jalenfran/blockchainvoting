@@ -10,8 +10,8 @@ typedef struct Block {
     char timestamp[64];
     char data[21];
     char username[MAX_USERNAME_LENGTH+1];
-    u_int8_t previousHash[32];
-    u_int8_t hash[32];
+    uint8_t previousHash[32];
+    uint8_t hash[32];
 } Block;
 
 /* Contains the structure of the blockchain */

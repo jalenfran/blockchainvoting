@@ -63,7 +63,7 @@ bool UserManager::registerUser(const std::string& username, const std::string& p
     std::string saltedPassword = password + salt;
 
     // computes the hash
-    u_int8_t hashOutput[32];
+    uint8_t hashOutput[32];
     sha256(saltedPassword.c_str(), hashOutput);
     char hashedPassword[HASH_STRING_LENGTH];
     // finds the string
@@ -86,7 +86,7 @@ bool UserManager::authenticateUser(const std::string& username, const std::strin
     std::string salt = it->second.first;
     std::string saltedPassword = password + salt;
 
-    u_int8_t hashOutput[32];
+    uint8_t hashOutput[32];
     sha256(saltedPassword.c_str(), hashOutput);
     char hashedPassword[HASH_STRING_LENGTH];
     makeHashString(hashOutput, hashedPassword);
