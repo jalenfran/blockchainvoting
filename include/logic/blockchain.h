@@ -4,10 +4,16 @@
 #define MAX_USERNAME_LENGTH 20
 
 /* Contains what each block will have */
+/*
+* LONG_MAX has up to 19 digits
+* index has up to 10 digits
+* So max hashBuffer is
+* 19+10+21+21+21+32+32+64+64 = 284
+*/
 typedef struct Block {
     int index;
-    int nonce;
-    char timestamp[64];
+    long nonce;
+    char timestamp[21];
     char data[21];
     char username[MAX_USERNAME_LENGTH+1];
     uint8_t previousHash[32];
@@ -38,7 +44,7 @@ void mineBlock(Block *blockPtr);
  * that fits the requirements
  * @post if found is true then the hash is a copy of the hash found form the block
  */
-void mineBlockRange(int startNonce, int endNonce, std::string initialString, uint8_t hash[], int *nonce, std::atomic<bool>& found);
+void mineBlockRange(long startNonce, long endNonce, std::string initialString, uint8_t hash[], long *nonce, std::atomic<bool>& found);
 
 /* Function to create first block */
 /**

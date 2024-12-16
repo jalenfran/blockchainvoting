@@ -4,7 +4,7 @@
 
 // Defines how many zeroes we need a the front of hash for
 // proof of work
-#define REQUIREDZEROES 3
+#define REQUIREDZEROES 4
 #define HASH_STRING_LENGTH 65
 
 // Defines macros for rotations

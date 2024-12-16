@@ -11,19 +11,17 @@
 #include <atomic>
 
 void mineBlock(Block *blockPtr){
-    // does proof of work
-    char hashBuffer[256];
     char previousHashString[HASH_STRING_LENGTH];
     makeHashString(blockPtr->previousHash, previousHashString);
     std::string initialString = std::to_string(blockPtr->index) + blockPtr->username + previousHashString + blockPtr->timestamp + blockPtr->data;
     const int numThreads = std::thread::hardware_concurrency(); // gets number of threads
-    const int rangePerThread = (INT_MAX) / numThreads; 
+    const long rangePerThread = (LONG_MAX) / numThreads; 
     std::atomic<bool> found(false); 
     std::vector<std::thread> threads;
 
     for (int i = 0; i < numThreads; ++i) {
-        int threadStart = i * rangePerThread;
-        int threadEnd = threadStart + rangePerThread;
+        long threadStart = i * rangePerThread;
+        long threadEnd = threadStart + rangePerThread;
 
         // Start a new thread for each range
         threads.push_back(std::thread([&, threadStart, threadEnd] {
@@ -39,8 +37,8 @@ void mineBlock(Block *blockPtr){
     }
 }
 
-void mineBlockRange(int startNonce, int endNonce, std::string initialString, uint8_t hash[], int *nonce, std::atomic<bool>& found){
-    for (int i = startNonce; i < endNonce; i++){
+void mineBlockRange(long startNonce, long endNonce, std::string initialString, uint8_t hash[], long *nonce, std::atomic<bool>& found){
+    for (long i = startNonce; i < endNonce; i++){
         if (found.load()) return; // makes sure we stop if a thread has found a hash
         std::string testString = initialString + std::to_string(i); // gathers string with nonce
         uint8_t testHash[32];
@@ -95,12 +93,12 @@ bool isValidBlock(Block *lastBlockPtr, Block *newBlockPtr)
     {
         return false;
     }
-    char hashBuffer[256];
+    std::string hashBuffer;
     char previousHashString[HASH_STRING_LENGTH];
     makeHashString(newBlockPtr->previousHash, previousHashString);
-    snprintf(hashBuffer, sizeof(hashBuffer), "%d%s%s%s%s%d", newBlockPtr->index, newBlockPtr->username, previousHashString, newBlockPtr->timestamp, newBlockPtr->data, newBlockPtr->nonce);
+    hashBuffer = std::to_string(newBlockPtr->index) + newBlockPtr->username + previousHashString + newBlockPtr->timestamp + newBlockPtr->data + std::to_string(newBlockPtr->nonce);
     uint8_t hashOutput[32];
-    sha256(hashBuffer, hashOutput);
+    sha256(hashBuffer.c_str(), hashOutput);
     if (!compareHashes(hashOutput, newBlockPtr->hash))
     {
         return false;
@@ -136,7 +134,7 @@ void printBlockchain(Blockchain *bcPtr)
     {
         Block block = bcPtr->blocks[i];
         printf("Block %d:\n", block.index);
-        printf("  Nonce: %d\n", block.nonce);
+        printf("  Nonce: %ld\n", block.nonce);
         printf("  Timestamp: %s\n", block.timestamp);
         printf("  Username: %s\n", block.username);
         printf("  Data: %s\n", block.data);
